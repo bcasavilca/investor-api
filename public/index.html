@@ -5,65 +5,115 @@
   <title>Dados da Conta</title>
   <style>
     body { font-family: Arial, sans-serif; margin: 20px; }
-    table { border-collapse: collapse; width: 50%; }
+    table { border-collapse: collapse; width: 60%; }
     th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
     th { background-color: #f2f2f2; }
   </style>
 </head>
 <body>
-  <h1>Dados da Conta MetaTrader</h1>
+  <h1></h1>
   <p><strong>Saldo:</strong> <span id="saldo">0</span></p>
   <p><strong>Lucro:</strong> <span id="lucro">0</span></p>
   <p><strong>Capital Líquido:</strong> <span id="capitalLiquido">0</span></p>
 
   <h2>Investidores</h2>
   <table>
-    <thead>
-      <tr>
-        <th>Nome</th>
-        <th>Depósito</th>
-        <th>Lucro</th>
-        <th>Capital Líquido</th>
-      </tr>
-    </thead>
-    <tbody id="investidores">
-      <!-- Linhas vão ser adicionadas pelo JS -->
-    </tbody>
-  </table>
+  <thead>
+    <tr>
+      <th>Nome</th>
+      <th>Depósito</th>
+      <th>%</th>
+      <th>Lucro</th>
+      <th>Capital Líquido</th>
+    </tr>
+  </thead>
+  <tbody id="investidores">
+    <tr data-nome="Andres">
+      <td>Andres</td>
+      <td class="deposito">265.00</td>
+      <td class="percent">0%</td>
+      <td class="lucro">0.00</td>
+      <td class="capital">0.00</td>
+    </tr>
+    <tr data-nome="Bruno">
+      <td>Bruno</td>
+      <td class="deposito">153.00</td>
+      <td class="percent">0%</td>
+      <td class="lucro">0.00</td>
+      <td class="capital">0.00</td>
+    </tr>
+  </tbody>
+  <tfoot>
+    <tr id="totais" style="font-weight:bold; background-color:#f0f0f0;">
+      <td>Total</td>
+      <td id="total-deposito">0.00</td>
+      <td>100%</td>
+      <td id="total-lucro">0.00</td>
+      <td id="total-capital">0.00</td>
+    </tr>
+  </tfoot>
+</table>
+<p id="atualizacao" style="color:gray; font-size:12px;">Última atualização: --:--:--</p>
 
-  <script>
-    async function atualizarDados() {
-      try {
-        const res = await fetch('/api/metatrader');
-        if (!res.ok) throw new Error('Erro ao buscar dados');
-        const data = await res.json();
 
-        document.getElementById('saldo').innerText = data.saldo.toFixed(2);
-        document.getElementById('lucro').innerText = data.lucro.toFixed(2);
-        document.getElementById('capitalLiquido').innerText = data.capitalLiquido.toFixed(2);
 
-        const tbody = document.getElementById('investidores');
-        tbody.innerHTML = ''; // limpa tabela
+ <script>
+async function atualizarDados() {
+  try {
+    const res = await fetch('/api/metatrader'); 
+    if (!res.ok) throw new Error('Erro ao buscar dados');
+    const data = await res.json();
 
-        data.investidores.forEach(inv => {
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td>${inv.nome}</td>
-            <td>${inv.deposito.toFixed(2)}</td>
-            <td>${inv.lucro.toFixed(2)}</td>
-            <td>${inv.capitalLiquido.toFixed(2)}</td>
-          `;
-          tbody.appendChild(tr);
-        });
+    // Atualiza totais da conta
+    document.getElementById('saldo').innerText = data.saldo.toFixed(2);
+    document.getElementById('lucro').innerText = data.lucro.toFixed(2);
+    document.getElementById('capitalLiquido').innerText = data.capitalLiquido.toFixed(2);
 
-      } catch (err) {
-        console.error(err);
-      }
-    }
+    // Calcula soma dos depósitos manuais
+    const rows = document.querySelectorAll("#investidores tr");
+    let somaDepositos = 0;
+    rows.forEach(tr => {
+      somaDepositos += parseFloat(tr.querySelector(".deposito").innerText);
+    });
 
-    // Atualiza a cada 5 segundos
-    atualizarDados();
-    setInterval(atualizarDados, 5000);
-  </script>
+    // Distribui lucro proporcionalmente
+    rows.forEach(tr => {
+      const deposito = parseFloat(tr.querySelector(".deposito").innerText);
+      const percent = deposito / somaDepositos;
+      const lucro = percent * data.lucro;
+      const capital = deposito + lucro;
+
+      tr.querySelector(".percent").innerText = (percent * 100).toFixed(2) + "%";
+      tr.querySelector(".lucro").innerText = lucro.toFixed(2);
+      tr.querySelector(".capital").innerText = capital.toFixed(2);
+    });
+
+    // Atualiza totais da tabela
+    let totalDeposito = 0;
+    let totalLucro = 0;
+    let totalCapital = 0;
+    rows.forEach(tr => {
+      totalDeposito += parseFloat(tr.querySelector(".deposito").innerText);
+      totalLucro += parseFloat(tr.querySelector(".lucro").innerText);
+      totalCapital += parseFloat(tr.querySelector(".capital").innerText);
+    });
+    document.getElementById("total-deposito").innerText = totalDeposito.toFixed(2);
+    document.getElementById("total-lucro").innerText = totalLucro.toFixed(2);
+    document.getElementById("total-capital").innerText = totalCapital.toFixed(2);
+
+    // Atualiza horário da última atualização no fuso local do usuário
+const agora = new Date();
+const horarioLocal = agora.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+document.getElementById('atualizacao').innerText = `Última atualização: ${horarioLocal}`;
+
+
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+atualizarDados();
+setInterval(atualizarDados, 5000); // atualiza a cada 5s
+</script>
 </body>
 </html>
