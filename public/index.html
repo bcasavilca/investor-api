@@ -3,12 +3,66 @@
 <head>
   <meta charset="UTF-8">
   <title>Dados da Conta</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 20px; }
-    table { border-collapse: collapse; width: 60%; }
-    th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
-    th { background-color: #f2f2f2; }
-  </style>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 10px;
+    padding: 0;
+  }
+
+  h1, h2, p {
+    text-align: left; /* tudo à esquerda */
+    margin: 5px 0;
+  }
+
+  table {
+    border-collapse: collapse;
+    width: 100%; /* ocupa toda a tela no celular */
+    max-width: 600px; /* limita no desktop */
+    margin: 0 auto; /* centraliza no desktop */
+    font-size: 14px; /* menor para caber na tela pequena */
+  }
+
+  th, td {
+    border: 1px solid #ddd;
+    padding: 6px 8px;
+    text-align: left; /* conteúdo à esquerda */
+  }
+
+  th {
+    background-color: #f2f2f2;
+  }
+
+  tfoot td {
+    font-weight: bold;
+    background-color: #f0f0f0;
+  }
+
+  @media (max-width: 480px) {
+    table, thead, tbody, th, td, tr {
+      display: block;
+    }
+    th, td {
+      width: 100%;
+      box-sizing: border-box;
+      text-align: left;
+    }
+    thead tr {
+      display: none; /* esconde cabeçalho em telas muito pequenas */
+    }
+    tbody tr {
+      margin-bottom: 10px;
+      border: 1px solid #ddd;
+      padding: 5px;
+    }
+    tfoot td {
+      display: block;
+      width: 100%;
+    }
+  }
+</style>
+
+
 </head>
 <body>
   <h1></h1>
@@ -37,7 +91,7 @@
     </tr>
     <tr data-nome="Bruno">
       <td>Bruno</td>
-      <td class="deposito">153.00</td>
+      <td class="deposito">80.00</td>
       <td class="percent">0%</td>
       <td class="lucro">0.00</td>
       <td class="capital">0.00</td>
@@ -53,11 +107,9 @@
     </tr>
   </tfoot>
 </table>
-<p id="atualizacao" style="color:gray; font-size:12px;">Última atualização: --:--:--</p>
+<p id="atualizacao">Última atualização: --:--:--</p>
 
-
-
- <script>
+<script>
 async function atualizarDados() {
   try {
     const res = await fetch('/api/metatrader'); 
@@ -69,7 +121,7 @@ async function atualizarDados() {
     document.getElementById('lucro').innerText = data.lucro.toFixed(2);
     document.getElementById('capitalLiquido').innerText = data.capitalLiquido.toFixed(2);
 
-    // Calcula soma dos depósitos manuais
+    // Calcula soma dos depósitos manuais (do HTML)
     const rows = document.querySelectorAll("#investidores tr");
     let somaDepositos = 0;
     rows.forEach(tr => {
@@ -88,10 +140,8 @@ async function atualizarDados() {
       tr.querySelector(".capital").innerText = capital.toFixed(2);
     });
 
-    // Atualiza totais da tabela
-    let totalDeposito = 0;
-    let totalLucro = 0;
-    let totalCapital = 0;
+    // Atualiza totais
+    let totalDeposito = 0, totalLucro = 0, totalCapital = 0;
     rows.forEach(tr => {
       totalDeposito += parseFloat(tr.querySelector(".deposito").innerText);
       totalLucro += parseFloat(tr.querySelector(".lucro").innerText);
@@ -101,19 +151,24 @@ async function atualizarDados() {
     document.getElementById("total-lucro").innerText = totalLucro.toFixed(2);
     document.getElementById("total-capital").innerText = totalCapital.toFixed(2);
 
-    // Atualiza horário da última atualização no fuso local do usuário
-const agora = new Date();
-const horarioLocal = agora.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-document.getElementById('atualizacao').innerText = `Última atualização: ${horarioLocal}`;
-
+    // Atualiza horário da última atualização
+    const dataAtualizacao = new Date(data.createdAt); // usa createdAt do Mongo
+    const h = String(dataAtualizacao.getHours()).padStart(2,'0');
+    const m = String(dataAtualizacao.getMinutes()).padStart(2,'0');
+    const s = String(dataAtualizacao.getSeconds()).padStart(2,'0');
+    document.getElementById('atualizacao').innerText = `Última atualização: ${h}:${m}:${s}`;
 
   } catch (err) {
     console.error(err);
   }
 }
 
+// Atualiza uma vez ao carregar a página
 atualizarDados();
-setInterval(atualizarDados, 5000); // atualiza a cada 5s
+
+// Opcional: se quiser continuar verificando, pode manter fetch a cada X segundos
+// setInterval(atualizarDados, 5000);
 </script>
+
 </body>
 </html>
