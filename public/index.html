@@ -65,20 +65,20 @@
 
 </head>
 <body>
-  <h1></h1>
+    <h2>Resumo da Conta de Operaçao</h2>
   <p><strong>Saldo:</strong> <span id="saldo">0</span></p>
   <p><strong>Lucro:</strong> <span id="lucro">0</span></p>
   <p><strong>Capital Líquido:</strong> <span id="capitalLiquido">0</span></p>
 
-  <h2>Investidores</h2>
+  <h2>Resumo do Investimento</h2>
   <table>
   <thead>
     <tr>
-      <th>Nome</th>
-      <th>Depósito</th>
-      <th>%</th>
-      <th>Lucro</th>
-      <th>Capital Líquido</th>
+      <th>investidor</th>
+      <th>capital investido</th>
+      <th>% nos resultados</th>
+      <th>lucro ou prejuizo</th>
+      <th>capital liquido </th>
     </tr>
   </thead>
   <tbody id="investidores">
@@ -130,17 +130,19 @@ async function atualizarDados() {
 
     // Distribui lucro proporcionalmente
     rows.forEach(tr => {
-      const deposito = parseFloat(tr.querySelector(".deposito").innerText);
-      const percent = deposito / somaDepositos;
-      const lucro = percent * data.lucro;
-      const capital = deposito + lucro;
+  const deposito = parseFloat(tr.querySelector(".deposito").innerText);
+  const percent = deposito / somaDepositos;
 
-      tr.querySelector(".percent").innerText = (percent * 100).toFixed(2) + "%";
-      tr.querySelector(".lucro").innerText = lucro.toFixed(2);
-      tr.querySelector(".capital").innerText = capital.toFixed(2);
-    });
+  // Novo cálculo proporcional ao capital total
+  const capital = percent * data.capitalLiquido;
+  const lucro = capital - deposito;
 
-    // Atualiza totais
+  tr.querySelector(".percent").innerText = (percent * 100).toFixed(2) + "%";
+  tr.querySelector(".lucro").innerText = lucro.toFixed(2);
+  tr.querySelector(".capital").innerText = capital.toFixed(2);
+});
+
+  // Atualiza totais
     let totalDeposito = 0, totalLucro = 0, totalCapital = 0;
     rows.forEach(tr => {
       totalDeposito += parseFloat(tr.querySelector(".deposito").innerText);
