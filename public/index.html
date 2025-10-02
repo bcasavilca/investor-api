@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8">
@@ -11,22 +11,20 @@
   }
 
   h1, h2, p {
-    text-align: left; /* tudo à esquerda */
+    text-align: left;
     margin: 5px 0;
   }
 
   table {
     border-collapse: collapse;
-   
-    max-width: 600px; /* limita no desktop */
-    
-    font-size: 14px; /* menor para caber na tela pequena */
+    max-width: 600px;
+    font-size: 14px;
   }
 
   th, td {
     border: 1px solid #ddd;
     padding: 6px 8px;
-    text-align: left; /* conteúdo à esquerda */
+    text-align: left;
   }
 
   th {
@@ -48,7 +46,7 @@
       text-align: left;
     }
     thead tr {
-      display: none; /* esconde cabeçalho em telas muito pequenas */
+      display: none;
     }
     tbody tr {
       margin-bottom: 10px;
@@ -61,14 +59,15 @@
     }
   }
 </style>
-
-
 </head>
 <body>
-    <h2>Resumo da Conta de Operaçao</h2>
+
+  <!-- Resumo da Conta de Operação (removido/comentado)
+  <h2>Resumo da Conta de Operacao</h2>
   <p><strong>Saldo:</strong> <span id="saldo">0</span></p>
   <p><strong>Lucro:</strong> <span id="lucro">0</span></p>
   <p><strong>Capital Líquido:</strong> <span id="capitalLiquido">0</span></p>
+  -->
 
   <h2>Resumo do Investimento</h2>
   <table>
@@ -78,7 +77,7 @@
       <th>capital investido</th>
       <th>% nos resultados</th>
       <th>lucro ou prejuizo</th>
-      <th>capital liquido </th>
+      <th>disponivel para saque </th>
     </tr>
   </thead>
   <tbody id="investidores">
@@ -97,12 +96,12 @@
       <td class="capital">0.00</td>
     </tr>
     <tr data-nome="Marlucia">
-    <td>Marlucia</td>
-    <td class="deposito">300.00</td>
-    <td class="percent">0%</td>
-    <td class="lucro">0.00</td>
-    <td class="capital">0.00</td>
-  </tr>
+      <td>Marlucia</td>
+      <td class="deposito">300.00</td>
+      <td class="percent">0%</td>
+      <td class="lucro">0.00</td>
+      <td class="capital">0.00</td>
+    </tr>
   </tbody>
   <tfoot>
     <tr id="totais" style="font-weight:bold; background-color:#f0f0f0;">
@@ -114,6 +113,7 @@
     </tr>
   </tfoot>
 </table>
+
 <p id="atualizacao">Última atualização: --:--:--</p>
 
 <script>
@@ -122,11 +122,6 @@ async function atualizarDados() {
     const res = await fetch('/api/metatrader'); 
     if (!res.ok) throw new Error('Erro ao buscar dados');
     const data = await res.json();
-
-    // Atualiza totais da conta
-    document.getElementById('saldo').innerText = data.saldo.toFixed(2);
-    document.getElementById('lucro').innerText = data.lucro.toFixed(2);
-    document.getElementById('capitalLiquido').innerText = data.capitalLiquido.toFixed(2);
 
     // Calcula soma dos depósitos manuais (do HTML)
     const rows = document.querySelectorAll("#investidores tr");
@@ -137,19 +132,18 @@ async function atualizarDados() {
 
     // Distribui lucro proporcionalmente
     rows.forEach(tr => {
-  const deposito = parseFloat(tr.querySelector(".deposito").innerText);
-  const percent = deposito / somaDepositos;
+      const deposito = parseFloat(tr.querySelector(".deposito").innerText);
+      const percent = deposito / somaDepositos;
 
-  // Novo cálculo proporcional ao capital total
-  const capital = percent * data.capitalLiquido;
-  const lucro = capital - deposito;
+      const capital = percent * data.capitalLiquido;
+      const lucro = capital - deposito;
 
-  tr.querySelector(".percent").innerText = (percent * 100).toFixed(2) + "%";
-  tr.querySelector(".lucro").innerText = lucro.toFixed(2);
-  tr.querySelector(".capital").innerText = capital.toFixed(2);
-});
+      tr.querySelector(".percent").innerText = (percent * 100).toFixed(2) + "%";
+      tr.querySelector(".lucro").innerText = lucro.toFixed(2);
+      tr.querySelector(".capital").innerText = capital.toFixed(2);
+    });
 
-  // Atualiza totais
+    // Atualiza totais
     let totalDeposito = 0, totalLucro = 0, totalCapital = 0;
     rows.forEach(tr => {
       totalDeposito += parseFloat(tr.querySelector(".deposito").innerText);
@@ -161,7 +155,7 @@ async function atualizarDados() {
     document.getElementById("total-capital").innerText = totalCapital.toFixed(2);
 
     // Atualiza horário da última atualização
-    const dataAtualizacao = new Date(data.createdAt); // usa createdAt do Mongo
+    const dataAtualizacao = new Date(data.createdAt);
     const h = String(dataAtualizacao.getHours()).padStart(2,'0');
     const m = String(dataAtualizacao.getMinutes()).padStart(2,'0');
     const s = String(dataAtualizacao.getSeconds()).padStart(2,'0');
@@ -174,9 +168,6 @@ async function atualizarDados() {
 
 // Atualiza uma vez ao carregar a página
 atualizarDados();
-
-// Opcional: se quiser continuar verificando, pode manter fetch a cada X segundos
-// setInterval(atualizarDados, 5000);
 </script>
 
 </body>
