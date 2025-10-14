@@ -1,0 +1,28 @@
+Passo a passo para rodar o servidor de novo
+
+Abra o Prompt de Comando (CMD) no Windows.
+
+Pressione Win + R → digite cmd → Enter.
+
+Vá até a pasta do projeto onde está o seu server.js:
+
+cd C:\Users\Bruno Trader Pro\investor-api
+
+
+Inicie o servidor com Node.js:
+
+node server.js
+
+MongoDB
+bcasavilca_db_user
+p6BnDuVuTfv7YDAp
+git config --global user.name "Bruno Casavilca"
+git config --global user.email "bcasavilca@yahoo.com"
+
+git remote add origin https://github.com/bcasavilca/investor-api.git
+
+
+git add .
+git commit -m " alteraçao das informacoes aos investidores no front-end  
+git push origin main
+
