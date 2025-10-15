@@ -23,6 +23,6 @@ git remote add origin https://github.com/bcasavilca/investor-api.git
 
 
 git add .
-git commit -m " alteraçao das informacoes aos investidores no front-end  
+git commit -m " alteraçao de saldo  
 git push origin main
 
